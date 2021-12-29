@@ -1,7 +1,8 @@
-import {HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Request } from "express";
+import { User } from 'src/user/interfaces/user.interface';
 import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/login-auth.dto';
 import { RegisterDto } from './dto/resgister.dto';
@@ -11,39 +12,94 @@ import { Payload } from './type/payload';
 export class AuthService {
     constructor(
         private readonly userService: UserService,
-        private readonly jwtService: JwtService,
-        private readonly configService: ConfigService
+        private readonly jwtService: JwtService
     ) {}
 
-    async register(registerDto: RegisterDto) {
-        return this.userService.create(registerDto);
-    }
-
-    async login(loginDto: LoginDto) {
-        const user = await this.userService.findByEmail(loginDto.email);
-
-        if(!user) {
-            throw new NotFoundException(`User not found with Email: ${loginDto.email}`);
-        }
-
-        const isPasswordMatching = await bcrypt.compare(user.password, loginDto.password);
-        if (isPasswordMatching) {
-            throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    async getCookieWithJwtToken(payload: Payload) {
-        const token = this.jwtService.sign(payload, {
-            expiresIn: this.configService.get('JWT_EXPIRATION'),
-            algorithm: 'HS256'
-        });
-
+    async register(registerDto: RegisterDto): Promise<any> {
+        const user = await this.userService.create(registerDto);
+        
         const obj = {
-            Authentication: `${token}`,
-            HttpOnly: true,
-            Path: '/',
-            Max_Age: this.configService.get('JWT_EXPIRATION')
-        };
+            token: await this.createAccessToken(user.email)
+        }
         return obj;
     }
+
+    async login(loginDto: LoginDto, req: Request) {
+
+        const token = this.getHeaderToken(req)
+        if (token) {
+            const decoded = this.jwtService.verify(token, { secret: process.env.JWT_SECRET_KEY });
+            const user = await this.userService.findByEmail(JSON.parse(JSON.stringify(decoded)).email);
+    
+            if(!user) {
+                throw new UnauthorizedException('User not found.');
+            }
+    
+            return user;
+        } else {
+            const user = await this.validateUser({ email: loginDto.email });
+            await this.checkPassword(loginDto.password, user.password);
+
+            let users = user.toObject();
+            delete users['password'];
+            const obj = {
+                users,
+                token: await this.createAccessToken(user.email)
+            }
+            return obj;
+        }
+    }
+
+    async createAccessToken(email: string) {
+        const accessToken = this.jwtService.sign({email}, { expiresIn: process.env.JWT_EXPIRATION});
+        return accessToken;
+    }
+
+    async validateUser(payload: Payload): Promise<User> {
+        const user = await this.userService.findByEmail(payload.email);
+        if (!user) {
+          throw new UnauthorizedException('User not found.');
+        }
+        return user;
+    }
+
+    returnJwtExtractor() {
+        return this.jwtExtractor;
+    }
+    
+
+    private jwtExtractor(request: Request) {
+        const token = this.getHeaderToken(request);
+        if (!token) {
+            throw new BadRequestException('Bad request.');
+        }
+
+        return token;
+    }
+
+    private getHeaderToken(request: Request) {
+        let token = null;
+
+        if (request.header('Authorization')) {
+            token = request.get('Authorization').replace('Bearer ', '').replace(' ', '');
+        } else if (request.headers.authorization) {
+            token = request.headers.authorization.replace('Bearer ', '').replace(' ', '');
+        } else if (request.body.token) {
+            token = request.body.token.replace(' ', '');
+        }
+
+        if (request.query.token) {
+            token = request.body.token.replace(' ', '');
+        }
+        
+        return token;
+    }
+
+    private async checkPassword(attemptPass: string, userMatch: string) {
+        const match = await bcrypt.compare(attemptPass, userMatch);
+        if (!match) {
+            throw new NotFoundException('Wrong email or password.');
+        }
+        return match;
+      }
 }

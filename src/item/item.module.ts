@@ -1,22 +1,15 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthMiddleware } from 'src/middleware/auth.middleware';
 import { ItemController } from './item.controller';
 import { ItemService } from './item.service';
 import { ItemSchema } from './schema/item.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'Item', schema: ItemSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: 'Item', schema: ItemSchema }])
+  ],
   controllers: [ItemController],
-  providers: [ItemService, JwtService],
-  exports: [ItemModule, JwtModule]
+  providers: [ItemService],
+  exports: [ItemModule]
 })
-export class ItemModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: '/items/:id',
-      method: RequestMethod.PATCH
-    })
-  }
-}
+export class ItemModule {}

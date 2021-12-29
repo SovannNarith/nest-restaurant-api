@@ -1,13 +1,17 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './interfaces/user.interface';
 import { UserService } from './user.service';
-import { match } from 'assert';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { Roles } from 'src/auth/decorator/roles.decorator';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
+@UseGuards(RolesGuard)
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
     constructor(private readonly userService: UserService) {}
 
@@ -20,6 +24,7 @@ export class UsersController {
     }
 
     @Get()
+    @Roles('admin')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     async getList(@Req() param: Request): Promise<User[]> {

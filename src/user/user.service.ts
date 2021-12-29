@@ -54,10 +54,9 @@ export class UserService {
     //Private Method
     private async isEmailUnique(email: string) {
         const user = await this.userModel.findOne({email});
-        // if (user) {
-        //     throw new BadRequestException('Email must be unique.');
-        // }
-        console.log(error)
+        if (user) {
+            throw new BadRequestException('Email must be unique.');
+        }
     }
 
     private sanitizeUser(user: User): any {
