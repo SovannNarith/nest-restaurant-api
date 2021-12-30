@@ -6,4 +6,6 @@ export class CreateCategoryDto {
     @MinLength(5)
     @MaxLength(30)
     readonly name: string;
+
+    readonly createdBy: string;
 }

@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Request } from "express";
@@ -25,8 +25,7 @@ export class AuthService {
     }
 
     async login(loginDto: LoginDto, req: Request) {
-
-        const token = this.getHeaderToken(req)
+        const token = this.headerToken(req);
         if (token) {
             const decoded = this.jwtService.verify(token, { secret: process.env.JWT_SECRET_KEY });
             const user = await this.userService.findByEmail(JSON.parse(JSON.stringify(decoded)).email);
@@ -66,19 +65,17 @@ export class AuthService {
     returnJwtExtractor() {
         return this.jwtExtractor;
     }
-    
 
     private jwtExtractor(request: Request) {
         const token = this.getHeaderToken(request);
         if (!token) {
-            throw new BadRequestException('Bad request.');
+            throw  new BadRequestException('Bad request.');
         }
-
         return token;
     }
 
-    private getHeaderToken(request: Request) {
-        let token = null;
+    private getHeaderToken = (request: Request) => {
+        let token = null
 
         if (request.header('Authorization')) {
             token = request.get('Authorization').replace('Bearer ', '').replace(' ', '');
@@ -91,8 +88,22 @@ export class AuthService {
         if (request.query.token) {
             token = request.body.token.replace(' ', '');
         }
-        
+
         return token;
+    }
+
+    private headerToken(request: any) {
+        if (request.header('Authorization')) {
+            return request.get('Authorization').replace('Bearer ', '').replace(' ', '');
+        } else if (request.headers.authorization) {
+            return request.headers.authorization.replace('Bearer ', '').replace(' ', '');
+        } else if (request.body.token) {
+            return request.body.token.replace(' ', '');
+        }
+
+        if (request.query.token) {
+            return request.body.token.replace(' ', '');
+        }
     }
 
     private async checkPassword(attemptPass: string, userMatch: string) {
@@ -101,5 +112,5 @@ export class AuthService {
             throw new NotFoundException('Wrong email or password.');
         }
         return match;
-      }
+    }
 }

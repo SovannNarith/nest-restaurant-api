@@ -4,13 +4,11 @@ import { MongooseVirtualId } from 'src/config/mongoose-virtual-id';
 export const OrderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        default: '61c28e27104a50cc71b58fed'
+        ref: 'User'
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Customer',
-        default: '61c2d81eb588865c7b09af74'
+        ref: 'Customer'
     },
     orderItem: {
         type: Array,

@@ -11,11 +11,12 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 @UseGuards(RolesGuard)
-@UseGuards(AuthGuard('jwt'))
 export class UsersController {
     constructor(private readonly userService: UserService) {}
 
     @Post()
+    @UseGuards(AuthGuard('jwt'))
+    @Roles('admin')
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({})
     @ApiCreatedResponse({})
@@ -23,8 +24,10 @@ export class UsersController {
         return this.userService.create(createUserDto);
     }
 
+
     @Get()
-    @Roles('admin')
+    @UseGuards(AuthGuard('jwt'))
+    @Roles('user', 'admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     async getList(@Req() param: Request): Promise<User[]> {

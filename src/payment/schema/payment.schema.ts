@@ -12,18 +12,15 @@ export const PaymentSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        default: '61c28e27104a50cc71b58fed'
+        ref: 'User'
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Customer',
-        default: '61c2d81eb588865c7b09af74'
+        ref: 'Customer'
     },
     order: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order',
-        default: '61c3f143c97bccda5f2661ae'
+        ref: 'Order'
     },
     amount: {
         type: Number,

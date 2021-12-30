@@ -28,13 +28,11 @@ export const ItemSchema = new mongoose.Schema({
     },
     categories: {
         type: [mongoose.Schema.Types.ObjectId],
-        ref: 'Categories',
-        default: '61c29f0222c59d10843c341c'
+        ref: 'Categories'
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Users',
-        default: '61c280bb8c679e1775633fc7'
+        ref: 'Users'
     },
     status: {
         type: String,

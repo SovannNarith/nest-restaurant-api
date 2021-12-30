@@ -19,8 +19,7 @@ export const CustomerSchema = new mongoose.Schema({
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        default: '61c28e27104a50cc71b58fed'
+        ref: 'User'
     }
 }, {
     versionKey: false,

@@ -14,7 +14,7 @@ export class UserService {
 
     async create(createUserDto: CreateUserDto): Promise<User> {
         const user = new this.userModel(createUserDto);
-        
+
         await this.isEmailUnique(user.email);
         await user.save();
         return this.sanitizeUser(user);
