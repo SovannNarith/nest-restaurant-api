@@ -1,15 +1,20 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Roles } from 'src/auth/decorator/roles.decorator';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { Category } from './interfaces/category.interface';
 
 @Controller('category')
+@UseGuards(RolesGuard, AuthGuard('jwt'))
 export class CategoryController {
     constructor(private readonly catService: CategoryService) {}
 
     @Post()
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({})
     @ApiCreatedResponse({})
@@ -25,6 +30,7 @@ export class CategoryController {
     }
 
     @Get(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     async getDetail(@Param('id') id: string): Promise<Category> {
@@ -32,6 +38,7 @@ export class CategoryController {
     }
 
     @Patch(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({})
     @ApiOkResponse({})
@@ -40,6 +47,7 @@ export class CategoryController {
     }
 
     @Delete(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({})
     @ApiOkResponse({})

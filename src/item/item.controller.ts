@@ -1,18 +1,21 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from 'src/auth/decorator/roles.decorator';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { Item } from './interface/item.interface';
 import { ItemService } from './item.service';
 
 @Controller('items')
+@UseGuards(RolesGuard, AuthGuard('jwt'))
 export class ItemController {
     constructor(private readonly itemService: ItemService) {}
 
     @Post()
-    @Roles('Admin')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({})
     @ApiCreatedResponse({})
@@ -35,6 +38,7 @@ export class ItemController {
     }
 
     @Patch(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({})
     @ApiOkResponse({})
@@ -43,6 +47,7 @@ export class ItemController {
     }
 
     @Delete(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     remove(@Param('id') id: string): Promise<Item> {

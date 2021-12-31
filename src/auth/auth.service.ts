@@ -19,34 +19,36 @@ export class AuthService {
         const user = await this.userService.create(registerDto);
         
         const obj = {
+            user,
             token: await this.createAccessToken(user.email)
         }
         return obj;
     }
 
     async login(loginDto: LoginDto, req: Request) {
+        let user: any;
+        
         const token = this.headerToken(req);
         if (token) {
             const decoded = this.jwtService.verify(token, { secret: process.env.JWT_SECRET_KEY });
-            const user = await this.userService.findByEmail(JSON.parse(JSON.stringify(decoded)).email);
+            user = await this.userService.findByEmail(JSON.parse(JSON.stringify(decoded)).email);
     
             if(!user) {
                 throw new UnauthorizedException('User not found.');
             }
-    
-            return user;
         } else {
-            const user = await this.validateUser({ email: loginDto.email });
+            user = await this.validateUser({ email: loginDto.email });
             await this.checkPassword(loginDto.password, user.password);
-
-            let users = user.toObject();
-            delete users['password'];
-            const obj = {
-                users,
-                token: await this.createAccessToken(user.email)
-            }
-            return obj;
         }
+
+        
+        let users = user.toObject();
+        delete users['password'];
+        const obj = {
+            users,
+            token: await this.createAccessToken(user.email)
+        }
+        return obj;
     }
 
     async createAccessToken(email: string) {

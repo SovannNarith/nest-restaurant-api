@@ -1,14 +1,19 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorator/roles.decorator';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { Customer } from './interface/customer.interface';
 
 @Controller('customers')
+@UseGuards(RolesGuard, AuthGuard('jwt'))
 export class CustomerController {
     constructor(private readonly cusService: CustomerService) {}
 
     @Post()
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({})
     @ApiCreatedResponse({})
@@ -17,6 +22,7 @@ export class CustomerController {
     }
 
     @Get()
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     getList(): Promise<Customer[]> {
@@ -24,6 +30,7 @@ export class CustomerController {
     }
 
     @Get(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     getDetail(@Param('id') id: string): Promise<Customer> {
@@ -31,6 +38,7 @@ export class CustomerController {
     }
 
     @Delete(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     remove(@Param('id') id: string): Promise<Customer> {

@@ -11,12 +11,12 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 @UseGuards(RolesGuard)
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
     constructor(private readonly userService: UserService) {}
 
     @Post()
-    @UseGuards(AuthGuard('jwt'))
-    @Roles('admin')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({})
     @ApiCreatedResponse({})
@@ -26,8 +26,7 @@ export class UsersController {
 
 
     @Get()
-    @UseGuards(AuthGuard('jwt'))
-    @Roles('user', 'admin', 'manager')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     async getList(@Req() param: Request): Promise<User[]> {
@@ -35,6 +34,7 @@ export class UsersController {
     }
 
     @Get(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     async getDetail(@Param('id') id: string): Promise<User> {
@@ -42,6 +42,7 @@ export class UsersController {
     }
 
     @Patch(':id')
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({})
     @ApiOkResponse({})
@@ -50,6 +51,7 @@ export class UsersController {
     }
 
     @Delete(':id')
+    @Roles('admin')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({})
     @ApiOkResponse({})
