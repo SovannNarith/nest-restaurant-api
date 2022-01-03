@@ -17,10 +17,10 @@ export class RolesGuard extends AuthGuard('jwt') implements CanActivate {
         const hasRole = () => user.roles.some((role) => roles.includes(role));
 
         if (!user) {
-          throw new UnauthorizedException();
+          throw new UnauthorizedException('Unauthorized User');
         }
         if (!(user.roles && hasRole())) {
-          throw new ForbiddenException('Forbidden');
+          throw new ForbiddenException('User Can not access to this route');
         }
         return user && user.roles && hasRole();
       }

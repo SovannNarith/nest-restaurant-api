@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { ValidationError } from 'class-validator';
 import { Request } from 'express';
-import { Model } from 'mongoose';
+import { Error, Model } from 'mongoose';
 import { AdvancedFilter } from 'src/advanced/advanced-filter';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { Category } from './interfaces/category.interface';
@@ -11,8 +12,19 @@ export class CategoryService {
     constructor(@InjectModel('Category') private readonly catModel: Model<Category>) {}
 
     async create(createCatDto: CreateCategoryDto): Promise<Category> {
-        const cat = new this.catModel(createCatDto);
+        const existingCat = await this.catModel.findOne({ name: createCatDto.name });
+        if(existingCat) {
+            throw new BadRequestException(`Category name: ${createCatDto.name} is an existing`);
+        }
 
+        let cat: Category;
+        try{
+            cat = new this.catModel(createCatDto);
+        } catch (err) {
+            if(err instanceof Error.ValidationError) {
+                throw new BadRequestException();
+            }
+        }
         return cat.save();
     }
 
@@ -21,14 +33,34 @@ export class CategoryService {
     }
 
     async getDetail(id: string): Promise<Category> {
-        return this.catModel.findOne({ _id: id });
+        return this.findById(id);
     }
 
     async update(id: string, createCatDto: CreateCategoryDto): Promise<Category> {
-        return this.catModel.findByIdAndUpdate({ _id: id }, createCatDto).setOptions({ runValidators: true, new: true });
+        const cat = this.findById(id);
+        return (await cat).updateOne(createCatDto).setOptions({ runValidators: true, new: true });
     }
 
     async remove(id: string): Promise<Category> {
-        return this.catModel.findByIdAndRemove(id);
+        const cat = this.findById(id);
+        return (await cat).remove();
+    }
+
+    async findById(id: string): Promise<Category> {
+        let cat: Category;
+
+        try {
+            cat = await this.catModel.findOne({ _id: id });
+        } catch (err) {
+            if(err instanceof Error.CastError) {
+                throw new BadRequestException('Invalid Object Id');
+            }
+        }
+
+        if(!cat) {
+            throw new NotFoundException('Category not found');
+        }
+
+        return cat;
     }
 }

@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, Min, MinLength } from "class-validator";
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, Min, MinLength } from "class-validator";
 
 
 export class CreateItemDto {
@@ -24,9 +24,15 @@ export class CreateItemDto {
     @Min(0)
     readonly stockQty: number;
 
+    @IsNotEmpty()
+    @IsArray()
     readonly categories: [string];
 
-    readonly createdBy: string; 
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(5)
+    @MaxLength(30)
+    readonly createdBy: string;
 
     @IsEnum(['OUT_OF_STOCK', 'AVAILABLE'])
     readonly status: string; 

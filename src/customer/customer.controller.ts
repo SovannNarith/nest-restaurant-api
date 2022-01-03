@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { Request } from 'express';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CustomerService } from './customer.service';
@@ -25,8 +26,8 @@ export class CustomerController {
     @Roles('admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
-    getList(): Promise<Customer[]> {
-        return this.cusService.getList();
+    getList(@Req() req: Request): Promise<any> {
+        return this.cusService.getList(req);
     }
 
     @Get(':id')

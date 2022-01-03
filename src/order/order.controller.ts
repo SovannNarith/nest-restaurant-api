@@ -14,6 +14,7 @@ export class OrderController {
     constructor(private readonly orderService: OrderService) {}
 
     @Post()
+    @Roles('admin', 'manager')
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({})
     @ApiCreatedResponse({})

@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Injectable, NestMiddleware } from "@nestjs/common";
+import { Injectable, NestMiddleware } from "@nestjs/common";
 import { NextFunction, Request, Response } from "express";
-import * as jwt from 'jsonwebtoken';
+import { Error } from "mongoose";
 
 @Injectable()
-export class ErrorMiddleware implements NestMiddleware {
+export class ErrorMiddleware extends Error implements NestMiddleware {
     use(req: Request, res: Response, next: NextFunction) {
-    
+        console.log(new Error.CastError.messages);
     }
 }

@@ -1,9 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
-import { Model } from 'mongoose';
+import { Error, Model } from 'mongoose';
 import { AdvancedFilter } from 'src/advanced/advanced-filter';
+import { Customer } from 'src/customer/interface/customer.interface';
 import { Item } from 'src/item/interface/item.interface';
+import { User } from 'src/user/interfaces/user.interface';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from './interface/order.interface';
 
@@ -11,14 +13,19 @@ import { Order } from './interface/order.interface';
 export class OrderService {
     constructor(
         @InjectModel('Order') private readonly orderModel: Model<Order>,
-        @InjectModel('Item') private readonly itemModel: Model<Item>    
+        @InjectModel('Item') private readonly itemModel: Model<Item>,
+        @InjectModel('User') private readonly userModel: Model<User>,
+        @InjectModel('Customer') private readonly cusModel: Model<Customer>   
     ) {}
 
     async create(createOrderDto: CreateOrderDto): Promise<Order> {
+        await this.findById(createOrderDto.user, this.userModel);
+        await this.findById(createOrderDto.customer, this.cusModel);
+
         let i = 0;
         let pro = [];
         for (const item of createOrderDto.orderItem) {
-            const product = await this.getProduct(item.item);
+            const product = await this.findById(item.item, this.itemModel);
             createOrderDto.orderItem[i].price = product.price;
 
             pro.push(product.updateOne({ stockQty: product.stockQty - item.quantity }));
@@ -33,7 +40,7 @@ export class OrderService {
 
         const order = new this.orderModel(createOrderDto);
         if (!order && !order.orderItem) {
-            throw new BadRequestException('Add Item to make order');
+            throw new BadRequestException();
         }
 
         if (order.total <= 0 ) {
@@ -70,12 +77,25 @@ export class OrderService {
     }
 
     async getDetail(id: string): Promise<Order> {
-        return this.orderModel.findOne({ _id: id });
+        return this.findById(id, this.orderModel);
     }
 
     //Private Method
-    private async getProduct(itemId: string): Promise<Item> {
-        const item = await this.itemModel.findById(itemId);
+    private async findById(itemId: string, model: Model<any>): Promise<any> {
+        let item: Model<any>;
+
+        try {
+            item = await model.findOne({ _id: itemId });
+        } catch (err) {
+            if(err instanceof Error.CastError) {
+                throw new BadRequestException(`Invalid Object id in resource ${model.modelName}`);
+            }
+        }
+
+        if(!item) {
+            throw new NotFoundException(`Resource of ${model.modelName} not found`);
+        }
+
         return item;
     }
 }

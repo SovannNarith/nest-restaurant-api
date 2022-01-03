@@ -12,4 +12,10 @@ export class CreateCustomerDto {
     @IsPhoneNumber("KH")
     @MaxLength(12)
     readonly phone: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(5)
+    @MaxLength(30)
+    readonly createdBy: string;
 }

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Request } from "express";
+import { Request, Response } from "express";
 import { User } from 'src/user/interfaces/user.interface';
 import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/login-auth.dto';
@@ -25,16 +25,23 @@ export class AuthService {
         return obj;
     }
 
-    async login(loginDto: LoginDto, req: Request) {
+    async login(loginDto: LoginDto, req: Request, res: Response) {
         let user: any;
         
         const token = this.headerToken(req);
         if (token) {
-            const decoded = this.jwtService.verify(token, { secret: process.env.JWT_SECRET_KEY });
-            user = await this.userService.findByEmail(JSON.parse(JSON.stringify(decoded)).email);
-    
-            if(!user) {
-                throw new UnauthorizedException('User not found.');
+            try {
+                const decoded = this.jwtService.verify(token, { secret: process.env.JWT_SECRET_KEY });
+                user = await this.userService.findByEmail(JSON.parse(JSON.stringify(decoded)).email);
+
+                if(!user) {
+                    throw new UnauthorizedException('User not found.');
+                }
+            } catch (error) {
+                return res.status(403).send({
+                    success: false,
+                    message: error
+                });
             }
         } else {
             user = await this.validateUser({ email: loginDto.email });
@@ -48,12 +55,18 @@ export class AuthService {
             users,
             token: await this.createAccessToken(user.email)
         }
-        return obj;
+        return res.status(201).send({
+            success: true,
+            obj
+        });
     }
 
     async createAccessToken(email: string) {
         const accessToken = this.jwtService.sign({email}, { expiresIn: process.env.JWT_EXPIRATION});
-        return accessToken;
+        return {
+            accessToken,
+            expire: new Date(Date.now() + parseInt(process.env.JWT_EXPIRATION, 10))
+        };
     }
 
     async validateUser(payload: Payload): Promise<User> {

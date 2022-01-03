@@ -34,7 +34,7 @@ export class UsersController {
     }
 
     @Get(':id')
-    @Roles('admin', 'manager')
+    @Roles('user', 'admin', 'manager')
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({})
     async getDetail(@Param('id') id: string): Promise<User> {
