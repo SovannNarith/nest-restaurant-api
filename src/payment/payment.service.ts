@@ -1,17 +1,36 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Error, Model } from 'mongoose';
-import { NotFoundError } from 'rxjs';
+import { Customer } from 'src/customer/interface/customer.interface';
+import { Order } from 'src/order/interface/order.interface';
+import { User } from 'src/user/interfaces/user.interface';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Payment } from './interface/payment.interface';
 
 @Injectable()
 export class PaymentService {
-    constructor(@InjectModel('Payment') private readonly paymentModel: Model<Payment>) {}
+    constructor(
+      @InjectModel('Payment') private readonly paymentModel: Model<Payment>,
+      @InjectModel('User') private readonly userModel: Model<User>,
+      @InjectModel('Customer') private readonly cusModel: Model<Customer>,  
+      @InjectModel('Order') private readonly orderModel: Model<Order>  
+    ) {}
 
     async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
-        const payment = new this.paymentModel(createPaymentDto);
-        return payment.save();
+      await this.findById(createPaymentDto.user, this.userModel);  
+      await this.findById(createPaymentDto.customer, this.cusModel);
+
+      const order = await this.findById(createPaymentDto.order, this.orderModel);  
+      // if(order.status !== 'PENDING') {
+      //   throw new BadRequestException('This Order has been cancel or paid success by s1');
+      // }
+
+      const payment = new this.paymentModel(createPaymentDto);
+      if(!payment) {
+        throw new BadRequestException();
+      }
+
+      return payment.save();
     }
 
     async getList(): Promise<Payment[]> {
