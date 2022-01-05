@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { MongooseVirtualId } from "src/config/mongoose-virtual-id";
+import { MongooseVirtualId } from "src/advanced/mongoose-virtual-id";
 
 export const CategorySchema = new mongoose.Schema(
   {

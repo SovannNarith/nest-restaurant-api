@@ -1,7 +1,7 @@
 import * as mongoose from "mongoose";
 import * as validator from "validator";
 import * as bcrypt from "bcrypt";
-import { MongooseVirtualId } from "src/config/mongoose-virtual-id";
+import { MongooseVirtualId } from "src/advanced/mongoose-virtual-id";
 
 export const UserSchema = new mongoose.Schema(
   {

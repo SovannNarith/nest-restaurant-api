@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { MongooseVirtualId } from "src/config/mongoose-virtual-id";
+import { MongooseVirtualId } from "src/advanced/mongoose-virtual-id";
 
 const phoneRegex =
   /\b855 *[-(]? *[0-9]{2} *[-)]? *[0-9]{3} *[-]? *[0-9]{3,4}\b|\b00855 *[-(]? *[0-9]{2} *[-)]? *[0-9]{3} *[-]? *[0-9]{3,4}\b/;
