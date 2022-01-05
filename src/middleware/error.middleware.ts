@@ -4,7 +4,7 @@ import { Error } from "mongoose";
 
 @Injectable()
 export class ErrorMiddleware extends Error implements NestMiddleware {
-    use(req: Request, res: Response, next: NextFunction) {
-        console.log(new Error.CastError.messages);
-    }
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log(new Error.CastError.messages());
+  }
 }

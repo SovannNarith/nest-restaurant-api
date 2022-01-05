@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
 export interface Category extends Document {
-    name: string;
-    createdBy: string;
+  name: string;
+  createdBy: string;
 }

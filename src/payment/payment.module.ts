@@ -1,20 +1,21 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CustomerSchema } from 'src/customer/schema/customer.schema';
-import { OrderSchema } from 'src/order/schema/order.schema';
-import { UserSchema } from 'src/user/schemas/user.schema';
-import { PaymentController } from './payment.controller';
-import { PaymentService } from './payment.service';
-import { PaymentSchema } from './schema/payment.schema';
+import { Module } from "@nestjs/common";
+import { MongooseModule } from "@nestjs/mongoose";
+import { CustomerModule } from "src/customer/customer.module";
+import { OrderModule } from "src/order/order.module";
+import { UserModule } from "src/user/user.module";
+import { PaymentController } from "./payment.controller";
+import { PaymentService } from "./payment.service";
+import { PaymentSchema } from "./schema/payment.schema";
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Payment', schema: PaymentSchema }]),
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: 'Customer', schema: CustomerSchema }]),
-    MongooseModule.forFeature([{ name: 'Order', schema: OrderSchema }])
+    MongooseModule.forFeature([{ name: "Payment", schema: PaymentSchema }]),
+    UserModule,
+    CustomerModule,
+    OrderModule,
   ],
   controllers: [PaymentController],
-  providers: [PaymentService]
+  providers: [PaymentService],
+  exports: [PaymentModule, MongooseModule],
 })
 export class PaymentModule {}

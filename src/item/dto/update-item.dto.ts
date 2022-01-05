@@ -1,11 +1,11 @@
 import { IsNumber, Min } from "class-validator";
 
 export class UpdateItemDto {
-    name?: string;
+  name?: string;
 
-    @IsNumber()
-    @Min(0)
-    stockQty: number;
+  @IsNumber()
+  @Min(0)
+  stockQty: number;
 
-    status?: string;
+  status?: string;
 }
