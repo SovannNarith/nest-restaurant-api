@@ -1,12 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString, MaxLength, MinLength } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class UpdateUserDto {
   //fullname
   @ApiProperty({
-    example: "Sovann Narith",
-    description: "add name of user",
-    format: "string",
+    example: 'Sovann Narith',
+    description: 'add name of user',
+    format: 'string',
     minLength: 6,
     maxLength: 30,
   })
@@ -17,9 +17,9 @@ export class UpdateUserDto {
 
   //email
   @ApiProperty({
-    example: "rails@gmail.com",
-    description: "email of user",
-    format: "email",
+    example: 'rails@gmail.com',
+    description: 'email of user',
+    format: 'email',
     uniqueItems: true,
   })
   @IsString()

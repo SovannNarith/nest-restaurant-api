@@ -4,7 +4,7 @@ export class MongooseVirtualId {
       return this._id;
     });
 
-    schema.set("toJSON", {
+    schema.set('toJSON', {
       virtuals: true,
       transform: function (doc, ret) {
         delete ret._id;

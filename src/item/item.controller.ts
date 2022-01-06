@@ -10,28 +10,28 @@ import {
   Post,
   Req,
   UseGuards,
-} from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
-} from "@nestjs/swagger";
-import { Request } from "express";
-import { Roles } from "src/auth/decorator/roles.decorator";
-import { RolesGuard } from "src/auth/guard/roles.guard";
-import { CreateItemDto } from "./dto/create-item.dto";
-import { UpdateItemDto } from "./dto/update-item.dto";
-import { Item } from "./interface/item.interface";
-import { ItemService } from "./item.service";
+} from '@nestjs/swagger';
+import { Request } from 'express';
+import { Roles } from 'src/auth/decorator/roles.decorator';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { CreateItemDto } from './dto/create-item.dto';
+import { UpdateItemDto } from './dto/update-item.dto';
+import { Item } from './interface/item.interface';
+import { ItemService } from './item.service';
 
-@Controller("items")
-@UseGuards(RolesGuard, AuthGuard("jwt"))
+@Controller('items')
+@UseGuards(RolesGuard, AuthGuard('jwt'))
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
   @Post()
-  @Roles("admin", "manager")
+  @Roles('admin', 'manager')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({})
   @ApiCreatedResponse({})
@@ -46,30 +46,30 @@ export class ItemController {
     return this.itemService.getList(param);
   }
 
-  @Get(":id")
+  @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({})
-  getDetail(@Param("id") id: string): Promise<Item> {
+  getDetail(@Param('id') id: string): Promise<Item> {
     return this.itemService.getDetail(id);
   }
 
-  @Patch(":id")
-  @Roles("admin", "manager")
+  @Patch(':id')
+  @Roles('admin', 'manager')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({})
   @ApiOkResponse({})
   update(
-    @Param("id") id: string,
-    @Body() updateItemDto: UpdateItemDto
+    @Param('id') id: string,
+    @Body() updateItemDto: UpdateItemDto,
   ): Promise<Item> {
     return this.itemService.update(id, updateItemDto);
   }
 
-  @Delete(":id")
-  @Roles("admin", "manager")
+  @Delete(':id')
+  @Roles('admin', 'manager')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({})
-  remove(@Param("id") id: string): Promise<Item> {
+  remove(@Param('id') id: string): Promise<Item> {
     return this.itemService.remove(id);
   }
 }

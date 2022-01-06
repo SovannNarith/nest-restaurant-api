@@ -2,21 +2,21 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
-} from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import { User } from "src/user/interfaces/user.interface";
-import { UserService } from "src/user/user.service";
-import { LoginDto } from "./dto/login-auth.dto";
-import { RegisterDto } from "./dto/resgister.dto";
-import { Payload } from "./type/payload";
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { Request, Response } from 'express';
+import { User } from 'src/user/interfaces/user.interface';
+import { UserService } from 'src/user/user.service';
+import { LoginDto } from './dto/login-auth.dto';
+import { RegisterDto } from './dto/resgister.dto';
+import { Payload } from './type/payload';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<any> {
@@ -39,9 +39,9 @@ export class AuthService {
           secret: process.env.JWT_SECRET_KEY,
         });
         user = await this.userService.findByEmail(
-          JSON.parse(JSON.stringify(decoded)).email
+          JSON.parse(JSON.stringify(decoded)).email,
         );
-        if (!user) throw new UnauthorizedException("User not found.");
+        if (!user) throw new UnauthorizedException('User not found.');
       } catch (error) {
         return res.status(403).send({
           success: false,
@@ -54,7 +54,7 @@ export class AuthService {
     }
 
     const users = user.toObject();
-    delete users["password"];
+    delete users['password'];
     const obj = {
       users,
       token: await this.createAccessToken(user.email),
@@ -68,7 +68,7 @@ export class AuthService {
   async createAccessToken(email: string) {
     const accessToken = this.jwtService.sign(
       { email },
-      { expiresIn: process.env.JWT_EXPIRATION }
+      { expiresIn: process.env.JWT_EXPIRATION },
     );
     return {
       accessToken,
@@ -78,30 +78,30 @@ export class AuthService {
 
   async validateUser(payload: Payload): Promise<User> {
     const user = await this.userService.findByEmail(payload.email);
-    if (!user) throw new UnauthorizedException("User not found.");
+    if (!user) throw new UnauthorizedException('User not found.');
     return user;
   }
 
   private headerToken(request: any) {
-    if (request.header("Authorization")) {
+    if (request.header('Authorization')) {
       return request
-        .get("Authorization")
-        .replace("Bearer ", "")
-        .replace(" ", "");
+        .get('Authorization')
+        .replace('Bearer ', '')
+        .replace(' ', '');
     } else if (request.headers.authorization) {
       return request.headers.authorization
-        .replace("Bearer ", "")
-        .replace(" ", "");
+        .replace('Bearer ', '')
+        .replace(' ', '');
     } else if (request.body.token) {
-      return request.body.token.replace(" ", "");
+      return request.body.token.replace(' ', '');
     }
 
-    if (request.query.token) return request.body.token.replace(" ", "");
+    if (request.query.token) return request.body.token.replace(' ', '');
   }
 
   private async checkPassword(attemptPass: string, userMatch: string) {
     const match = await bcrypt.compare(attemptPass, userMatch);
-    if (!match) throw new NotFoundException("Wrong email or password.");
+    if (!match) throw new NotFoundException('Wrong email or password.');
     return match;
   }
 }

@@ -7,7 +7,7 @@ import {
   MaxLength,
   Min,
   MinLength,
-} from "class-validator";
+} from 'class-validator';
 
 export class CreateItemDto {
   @IsString()
@@ -33,7 +33,7 @@ export class CreateItemDto {
 
   @IsNotEmpty()
   @IsArray()
-  readonly categories: [string];
+  readonly categories: string[];
 
   @IsString()
   @IsNotEmpty()
@@ -41,6 +41,6 @@ export class CreateItemDto {
   @MaxLength(30)
   readonly createdBy: string;
 
-  @IsEnum(["OUT_OF_STOCK", "AVAILABLE"])
+  @IsEnum(['OUT_OF_STOCK', 'AVAILABLE'])
   readonly status: string;
 }

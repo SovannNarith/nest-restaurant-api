@@ -3,18 +3,18 @@ import {
   Injectable,
   NotFoundException,
   Req,
-} from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Request } from "express";
-import { Error, Model } from "mongoose";
-import { AdvancedFilter } from "src/advanced/advanced-filter";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { User } from "./interfaces/user.interface";
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Request } from 'express';
+import { Error, Model } from 'mongoose';
+import { AdvancedFilter } from 'src/advanced/advanced-filter';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel("User") private readonly userModel: Model<User>) {}
+  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
@@ -38,19 +38,19 @@ export class UserService {
   async findByEmail(email: string): Promise<User> {
     const user = await this.userModel
       .findOne({ email: email })
-      .select("+password");
-    if (!user) throw new NotFoundException("User not Found");
+      .select('+password');
+    if (!user) throw new NotFoundException('User not Found');
     return user;
   }
 
   async findById(id: string): Promise<User> {
     try {
       const user = await this.userModel.findOne({ _id: id });
-      if (!user) throw new NotFoundException(`User Not Found with id ${id}`);
+    if (!user) throw new NotFoundException(`User Not Found with id ${id}`);
       return user;
     } catch (err) {
       if (err instanceof Error.CastError)
-        throw new BadRequestException("Invalid Object id");
+        throw new BadRequestException('Invalid Object id');
     }
   }
 
@@ -69,11 +69,12 @@ export class UserService {
   //Private Method
   private async isEmailUnique(email: string) {
     const user = await this.userModel.findOne({ email });
-    if (user) throw new BadRequestException("Email must be unique.");
+    if (user) throw new BadRequestException('Email must be unique.');
   }
 
   private sanitizeUser(user: User): any {
-    const { password, ...restUser } = user;
-    return restUser;
+    const obj = user.toObject();
+    delete obj.password;
+    return obj;
   }
 }

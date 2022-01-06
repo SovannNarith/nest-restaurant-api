@@ -1,5 +1,5 @@
-import * as mongoose from "mongoose";
-import { MongooseVirtualId } from "src/advanced/mongoose-virtual-id";
+import * as mongoose from 'mongoose';
+import { MongooseVirtualId } from 'src/advanced/mongoose-virtual-id';
 
 export const PaymentSchema = new mongoose.Schema(
   {
@@ -8,36 +8,36 @@ export const PaymentSchema = new mongoose.Schema(
     },
     method: {
       type: String,
-      enum: ["Visa", "Master Card", "Cash"],
-      required: [true, "Please select a payment method"],
+      enum: ['Visa', 'Master Card', 'Cash'],
+      required: [true, 'Please select a payment method'],
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Customer",
+      ref: 'Customer',
     },
     order: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Order",
+      ref: 'Order',
     },
     amount: {
       type: Number,
-      required: [true, "Please paid the order"],
+      required: [true, 'Please paid the order'],
       min: 1,
     },
     status: {
       type: String,
-      enum: ["PENDING", "PAID"],
-      default: "PENDING",
+      enum: ['PENDING', 'PAID'],
+      default: 'PENDING',
     },
   },
   {
     versionKey: false,
     timestamps: true,
-  }
+  },
 );
 
-MongooseVirtualId.virtual(PaymentSchema, "paymentId");
+MongooseVirtualId.virtual(PaymentSchema, 'paymentId');

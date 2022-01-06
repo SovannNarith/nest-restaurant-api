@@ -2,18 +2,18 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Request } from "express";
-import { Error, Model } from "mongoose";
-import { AdvancedFilter } from "src/advanced/advanced-filter";
-import { CreateCategoryDto } from "./dto/create-category.dto";
-import { Category } from "./interfaces/category.interface";
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Request } from 'express';
+import { Error, Model } from 'mongoose';
+import { AdvancedFilter } from 'src/advanced/advanced-filter';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { Category } from './interfaces/category.interface';
 
 @Injectable()
 export class CategoryService {
   constructor(
-    @InjectModel("Category") private readonly catModel: Model<Category>
+    @InjectModel('Category') private readonly catModel: Model<Category>,
   ) {}
 
   async create(createCatDto: CreateCategoryDto): Promise<Category> {
@@ -23,7 +23,7 @@ export class CategoryService {
       });
       if (existingCat)
         throw new BadRequestException(
-          `Category name: ${createCatDto.name} is an existing`
+          `Category name: ${createCatDto.name} is an existing`,
         );
 
       const cat = new this.catModel(createCatDto);
@@ -56,11 +56,11 @@ export class CategoryService {
   async findById(id: string): Promise<Category> {
     try {
       const cat = await this.catModel.findOne({ _id: id });
-      if (!cat) throw new NotFoundException("Category not found");
+      if (!cat) throw new NotFoundException('Category not found');
       return cat;
     } catch (err) {
       if (err instanceof Error.CastError)
-        throw new BadRequestException("Invalid Object Id");
+        throw new BadRequestException('Invalid Object Id');
     }
   }
 }

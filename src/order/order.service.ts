@@ -4,24 +4,24 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Request } from "express";
-import { Error, Model } from "mongoose";
-import { AdvancedFilter } from "src/advanced/advanced-filter";
-import { Customer } from "src/customer/interface/customer.interface";
-import { Item } from "src/item/interface/item.interface";
-import { User } from "src/user/interfaces/user.interface";
-import { CreateOrderDto } from "./dto/create-order.dto";
-import { Order } from "./interface/order.interface";
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Request } from 'express';
+import { Error, Model } from 'mongoose';
+import { AdvancedFilter } from 'src/advanced/advanced-filter';
+import { Customer } from 'src/customer/interface/customer.interface';
+import { Item } from 'src/item/interface/item.interface';
+import { User } from 'src/user/interfaces/user.interface';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { Order } from './interface/order.interface';
 
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectModel("Order") private readonly orderModel: Model<Order>,
-    @InjectModel("Item") private readonly itemModel: Model<Item>,
-    @InjectModel("User") private readonly userModel: Model<User>,
-    @InjectModel("Customer") private readonly cusModel: Model<Customer>
+    @InjectModel('Order') private readonly orderModel: Model<Order>,
+    @InjectModel('Item') private readonly itemModel: Model<Item>,
+    @InjectModel('User') private readonly userModel: Model<User>,
+    @InjectModel('Customer') private readonly cusModel: Model<Customer>,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -38,9 +38,9 @@ export class OrderService {
       if (checkStockAvailble < 0)
         throw new HttpException(
           `Product id ${item.item} available in stock ${product.stockQty}`,
-          HttpStatus.BAD_REQUEST
+          HttpStatus.BAD_REQUEST,
         );
-      if (checkStockAvailble < 1) product.updateOne({ status: "OUT_OF_STOCK" });
+      if (checkStockAvailble < 1) product.updateOne({ status: 'OUT_OF_STOCK' });
 
       pro.push(product.updateOne({ stockQty: checkStockAvailble }));
       i++;
@@ -54,7 +54,7 @@ export class OrderService {
 
     const order = new this.orderModel(createOrderDto);
     if (!order && !order.orderItem) throw new BadRequestException();
-    if (order.total <= 0) throw new BadRequestException("Total must be > 1");
+    if (order.total <= 0) throw new BadRequestException('Total must be > 1');
 
     let orders: any;
     if ((orders = order.save())) pro.forEach(async (item) => await item);
@@ -67,24 +67,24 @@ export class OrderService {
       this.orderModel,
       [
         {
-          path: "user",
-          select: "fullname",
+          path: 'user',
+          select: 'fullname',
         },
         {
-          path: "customer",
-          select: "fullname",
+          path: 'customer',
+          select: 'fullname',
         },
         {
-          path: "orderItem",
-          select: "items",
+          path: 'orderItem',
+          select: 'items',
         },
       ],
       [
         {
-          path: "orderItem.items",
-          select: "name",
+          path: 'orderItem.items',
+          select: 'name',
         },
-      ]
+      ],
     );
   }
 
@@ -105,7 +105,7 @@ export class OrderService {
     } catch (err) {
       if (err instanceof Error.CastError)
         throw new BadRequestException(
-          `Invalid Object id in resource ${model.modelName}`
+          `Invalid Object id in resource ${model.modelName}`,
         );
     }
   }

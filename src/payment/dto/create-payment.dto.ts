@@ -5,12 +5,12 @@ import {
   IsNumber,
   IsString,
   Min,
-} from "class-validator";
+} from 'class-validator';
 
 export class CreatePaymentDto {
   @IsString()
   @IsNotEmpty()
-  @IsEnum(["Visa", "Master Card", "Cash"])
+  @IsEnum(['Visa', 'Master Card', 'Cash'])
   readonly method: string;
 
   @IsString()
@@ -34,7 +34,7 @@ export class CreatePaymentDto {
   readonly amount: number;
 
   @IsString()
-  @IsEnum(["PENDING", "PAID"])
+  @IsEnum(['PENDING', 'PAID'])
   @IsNotEmpty()
   readonly status: string;
 }

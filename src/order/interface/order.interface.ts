@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document } from 'mongoose';
 
 export interface Order extends Document {
   user: string;
@@ -8,7 +8,7 @@ export interface Order extends Document {
       item: string;
       price: number;
       quantity: number;
-    }
+    },
   ];
   total: number;
   status: string;

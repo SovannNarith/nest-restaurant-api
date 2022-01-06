@@ -1,6 +1,6 @@
-import { Injectable, NestMiddleware } from "@nestjs/common";
-import { NextFunction, Request, Response } from "express";
-import { Error } from "mongoose";
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
+import { Error } from 'mongoose';
 
 @Injectable()
 export class ErrorMiddleware extends Error implements NestMiddleware {

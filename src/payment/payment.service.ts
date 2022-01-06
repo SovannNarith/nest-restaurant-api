@@ -2,22 +2,22 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Error, Model } from "mongoose";
-import { Customer } from "src/customer/interface/customer.interface";
-import { Order } from "src/order/interface/order.interface";
-import { User } from "src/user/interfaces/user.interface";
-import { CreatePaymentDto } from "./dto/create-payment.dto";
-import { Payment } from "./interface/payment.interface";
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Error, Model } from 'mongoose';
+import { Customer } from 'src/customer/interface/customer.interface';
+import { Order } from 'src/order/interface/order.interface';
+import { User } from 'src/user/interfaces/user.interface';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import { Payment } from './interface/payment.interface';
 
 @Injectable()
 export class PaymentService {
   constructor(
-    @InjectModel("Payment") private readonly paymentModel: Model<Payment>,
-    @InjectModel("User") private readonly userModel: Model<User>,
-    @InjectModel("Customer") private readonly cusModel: Model<Customer>,
-    @InjectModel("Order") private readonly orderModel: Model<Order>
+    @InjectModel('Payment') private readonly paymentModel: Model<Payment>,
+    @InjectModel('User') private readonly userModel: Model<User>,
+    @InjectModel('Customer') private readonly cusModel: Model<Customer>,
+    @InjectModel('Order') private readonly orderModel: Model<Order>,
   ) {}
 
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
@@ -36,16 +36,16 @@ export class PaymentService {
     return this.paymentModel
       .find()
       .populate({
-        path: "order",
-        select: "total orderItem",
+        path: 'order',
+        select: 'total orderItem',
       })
       .populate({
-        path: "user",
-        select: "fullname roles",
+        path: 'user',
+        select: 'fullname roles',
       })
       .populate({
-        path: "customer",
-        select: "fullname phone",
+        path: 'customer',
+        select: 'fullname phone',
       });
   }
 
@@ -58,13 +58,13 @@ export class PaymentService {
       const item = await model.findOne({ _id: id });
       if (!item)
         throw new NotFoundException(
-          `No Resource of id ${id} in model ${model.modelName}`
+          `No Resource of id ${id} in model ${model.modelName}`,
         );
       return item;
     } catch (err) {
       if (err instanceof Error.CastError)
         throw new BadRequestException(
-          `Invalid Object id in resource ${model.modelName}`
+          `Invalid Object id in resource ${model.modelName}`,
         );
     }
   }

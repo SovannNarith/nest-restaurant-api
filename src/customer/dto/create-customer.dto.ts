@@ -4,7 +4,7 @@ import {
   IsString,
   MaxLength,
   MinLength,
-} from "class-validator";
+} from 'class-validator';
 
 export class CreateCustomerDto {
   @IsString()
@@ -15,7 +15,7 @@ export class CreateCustomerDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsPhoneNumber("KH")
+  @IsPhoneNumber('KH')
   @MaxLength(12)
   readonly phone: string;
 

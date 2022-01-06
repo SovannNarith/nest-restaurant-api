@@ -1,4 +1,4 @@
-import { IsArray, IsMongoId, IsNotEmpty, IsString } from "class-validator";
+import { IsArray, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateOrderDto {
   @IsString()
@@ -18,7 +18,7 @@ export class CreateOrderDto {
       readonly item: string;
       price: number;
       readonly quantity: number;
-    }
+    },
   ];
 
   total: number;

@@ -1,37 +1,37 @@
-import { Request } from "express";
-import { Model } from "mongoose";
+import { Request } from 'express';
+import { Model } from 'mongoose';
 export class AdvancedFilter {
   static async filter(
     param: Request,
     model: Model<any>,
     populate?: any,
-    subPopulate?: any
+    subPopulate?: any,
   ) {
     let query;
 
     const reqQuery = { ...param.query };
     let queryStr = JSON.stringify(reqQuery);
 
-    const removeFields = ["select", "sort", "page", "limit"];
+    const removeFields = ['select', 'sort', 'page', 'limit'];
     removeFields.forEach((params) => delete reqQuery[params]);
 
     queryStr = queryStr.replace(
       /\b(gt|gte|lt|lte|in)\b/g,
-      (match) => `$${match}`
+      (match) => `$${match}`,
     );
 
     query = model.find(JSON.parse(queryStr));
 
     if (param.query.select) {
-      const fields = param.query.select.toString().split(",").join(" ");
+      const fields = param.query.select.toString().split(',').join(' ');
       query = query.select(fields);
     }
 
     if (param.query.sort) {
-      const sortBy = param.query.sort.toString().split(",").join(" ");
+      const sortBy = param.query.sort.toString().split(',').join(' ');
       query = query.sort(sortBy);
     } else {
-      query = query.sort("-createdAt");
+      query = query.sort('-createdAt');
     }
 
     let page = 1;
