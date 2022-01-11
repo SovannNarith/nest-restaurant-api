@@ -75,7 +75,11 @@ export class UserService {
     userId: string,
     file: Express.Multer.File,
   ): Promise<any> {
-    return this.fileService.uploadFile(userId, this.userModel, file);
+    return this.fileService.uploadFile(userId, file, this.userModel);
+  }
+
+  async getProfileImage(userId: string): Promise<any> {
+    return this.fileService.getFile(userId, this.userModel);
   }
 
   //Private Method

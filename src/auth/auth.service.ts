@@ -48,7 +48,7 @@ export class AuthService {
         user = await this.validateUser({ email: loginDto.email });
         await this.checkPassword(loginDto.password, user.password);
       }
-      
+
       const createdToken = await this.createAccessToken(user.email);
       const users = user.toObject();
       delete users['password'];
@@ -80,6 +80,25 @@ export class AuthService {
     } catch (err) {
       res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err });
     }
+  }
+
+  async uploadProfileImage(
+    req: Request,
+    file: Express.Multer.File,
+  ): Promise<any> {
+    const token = this.headerToken(req);
+    if (!token)
+      throw new BadRequestException('User does not have access token');
+
+    const decoded = this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET_KEY,
+    });
+
+    const user = await this.userService.findByEmail(
+      JSON.parse(JSON.stringify(decoded)).email,
+    );
+    if (!user) throw new UnauthorizedException('User not found.');
+    return this.userService.uploadProfileImage(user.id, file);
   }
 
   async createAccessToken(email: string) {

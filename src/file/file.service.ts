@@ -12,15 +12,17 @@ export class FileService {
 
   async uploadFile(
     objectId: string,
-    model: Model<any>,
     file: Express.Multer.File,
+    model?: Model<any>,
   ) {
+
+    
     const s3 = new S3();
     const newLocal = {
       Bucket: process.env.AWS_PUBLIC_BUCKET_NAME,
       Body: file.buffer,
       Key: uuidv4(),
-      ContentType: 'mimetype',
+      ContentType: file.mimetype,
       ContentDisposition: 'inline',
       CreateBucketConfiguration: {
         LocationConstraint: process.env.AWS_PUBLIC_BUCKET_NAME,
@@ -38,7 +40,7 @@ export class FileService {
       buffer: file.buffer,
       path: returnFile.Location,
       key: returnFile.Key,
-    }
+    };
 
     const fileInfo = new this.fileModel(uploadFileDto);
     if (!fileInfo)

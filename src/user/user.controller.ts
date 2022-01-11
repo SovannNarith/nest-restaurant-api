@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   Patch,
@@ -28,11 +29,11 @@ import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadFileDto } from 'src/file/dto/upload-file.dto';
+import { extname } from 'path';
 
 @Controller('users')
 @UseGuards(RolesGuard)
-// @UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private readonly userService: UserService) {}
 
@@ -74,7 +75,23 @@ export class UsersController {
   }
 
   @Patch(':id/upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          cb(null, true);
+        } else {
+          cb(
+            new HttpException(
+              `Unsupported file type ${extname(file.originalname)}`,
+              HttpStatus.BAD_REQUEST,
+            ),
+            false,
+          );
+        }
+      },
+    }),
+  )
   @Roles('admin', 'manager')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({})
@@ -88,12 +105,14 @@ export class UsersController {
   }
 
   @Get(':id/getavatar')
-  // @Roles('admin', 'manager')
+  @Roles('admin', 'manager')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({})
   @ApiOkResponse({})
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async getAvatar(@Param('id') id: string, @Res() res: Response) {}
+  async getAvatar(@Param('id') id: string, @Res() res: Response): Promise<any> {
+    const file = await this.userService.getProfileImage(id);
+    file.stream.pipe(res);
+  }
 
   @Delete(':id')
   @Roles('admin')
