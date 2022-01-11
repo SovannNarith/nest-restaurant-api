@@ -3,8 +3,16 @@ import { NextFunction, Request, Response } from 'express';
 import { Error } from 'mongoose';
 
 @Injectable()
-export class ErrorMiddleware extends Error implements NestMiddleware {
+export class ErrorMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    console.log(new Error.CastError.messages());
+    if (Error.DocumentNotFoundError) {
+      console.log(2);
+    }
+
+    if (Error.CastError) {
+      console.log(1);
+    }
+
+    next();
   }
 }

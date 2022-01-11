@@ -1,5 +1,4 @@
 import { IsArray, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
-
 export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()

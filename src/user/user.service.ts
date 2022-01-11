@@ -8,13 +8,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
 import { Error, Model } from 'mongoose';
 import { AdvancedFilter } from 'src/advanced/advanced-filter';
+import { UploadFileDto } from 'src/file/dto/upload-file.dto';
+import { FileService } from 'src/file/file.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
+  constructor(
+    @InjectModel('User') private readonly userModel: Model<User>,
+    private readonly fileService: FileService,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
@@ -46,7 +51,7 @@ export class UserService {
   async findById(id: string): Promise<User> {
     try {
       const user = await this.userModel.findOne({ _id: id });
-    if (!user) throw new NotFoundException(`User Not Found with id ${id}`);
+      if (!user) throw new NotFoundException(`User Not Found with id ${id}`);
       return user;
     } catch (err) {
       if (err instanceof Error.CastError)
@@ -64,6 +69,13 @@ export class UserService {
   async remove(id: string): Promise<User> {
     const user = await this.findById(id);
     if (user) return user.remove();
+  }
+
+  async uploadProfileImage(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<any> {
+    return this.fileService.uploadFile(userId, this.userModel, file);
   }
 
   //Private Method

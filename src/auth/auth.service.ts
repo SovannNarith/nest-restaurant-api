@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -29,40 +31,55 @@ export class AuthService {
     return obj;
   }
 
-  async login(loginDto: LoginDto, req: Request, res: Response) {
-    let user: any;
-
-    const token = this.headerToken(req);
-    if (token) {
-      try {
+  async login(loginDto: LoginDto, req: Request, res?: Response) {
+    try {
+      let user: User;
+      const token = this.headerToken(req);
+      if (token) {
         const decoded = this.jwtService.verify(token, {
           secret: process.env.JWT_SECRET_KEY,
         });
         user = await this.userService.findByEmail(
           JSON.parse(JSON.stringify(decoded)).email,
         );
+        console.log(decoded, user);
         if (!user) throw new UnauthorizedException('User not found.');
-      } catch (error) {
-        return res.status(403).send({
-          success: false,
-          message: error,
-        });
+      } else {
+        user = await this.validateUser({ email: loginDto.email });
+        await this.checkPassword(loginDto.password, user.password);
       }
-    } else {
-      user = await this.validateUser({ email: loginDto.email });
-      await this.checkPassword(loginDto.password, user.password);
+      
+      const createdToken = await this.createAccessToken(user.email);
+      const users = user.toObject();
+      delete users['password'];
+      return res
+        .status(201)
+        .json({ success: true, data: users, token: createdToken });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err });
     }
+  }
 
-    const users = user.toObject();
-    delete users['password'];
-    const obj = {
-      users,
-      token: await this.createAccessToken(user.email),
-    };
-    return res.status(201).send({
-      success: true,
-      obj,
-    });
+  async getMe(req: Request, res: Response): Promise<any> {
+    try {
+      const token = this.headerToken(req);
+      if (!token)
+        throw new BadRequestException('User does not have access token');
+
+      const decoded = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET_KEY,
+      });
+
+      const user = await this.userService.findByEmail(
+        JSON.parse(JSON.stringify(decoded)).email,
+      );
+      if (!user) throw new UnauthorizedException('User not found.');
+      const users = user.toObject();
+      delete users.password;
+      return res.status(HttpStatus.OK).json({ success: true, data: users });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err });
+    }
   }
 
   async createAccessToken(email: string) {

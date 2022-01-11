@@ -3,5 +3,6 @@ export interface User extends Document {
   fullName: string;
   email: string;
   password: string;
+  image: string;
   roles: string[];
 }

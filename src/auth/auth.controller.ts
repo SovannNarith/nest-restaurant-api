@@ -1,10 +1,21 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Req,
+  Res,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login-auth.dto';
 import { RegisterDto } from './dto/resgister.dto';
 
 @Controller('auth')
+@UseInterceptors(FileInterceptor('file'))
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -20,5 +31,10 @@ export class AuthController {
     @Body() loginDto: LoginDto,
   ): Promise<any> {
     return this.authService.login(loginDto, authorization, res);
+  }
+
+  @Get()
+  async getMe(@Req() req: Request, @Res() res: Response): Promise<any> {
+    return this.authService.getMe(req, res);
   }
 }

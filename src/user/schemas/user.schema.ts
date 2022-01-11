@@ -29,6 +29,10 @@ export const UserSchema = new mongoose.Schema(
       type: [String],
       default: ['user'],
     },
+    image: {
+      type: String,
+      default: '44bd0d5c-a5fa-44bb-9a6b-d1fcbdb823a0',
+    },
   },
   {
     versionKey: false,
