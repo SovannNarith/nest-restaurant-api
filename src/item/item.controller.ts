@@ -4,20 +4,26 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   Patch,
   Post,
   Req,
+  Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { extname } from 'path';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -63,6 +69,45 @@ export class ItemController {
     @Body() updateItemDto: UpdateItemDto,
   ): Promise<Item> {
     return this.itemService.update(id, updateItemDto);
+  }
+
+  @Patch(':id/upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          cb(null, true);
+        } else {
+          cb(
+            new HttpException(
+              `Unsupported file type ${extname(file.originalname)}`,
+              HttpStatus.BAD_REQUEST,
+            ),
+            false,
+          );
+        }
+      },
+    }),
+  )
+  @Roles('admin', 'manager')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({})
+  @ApiOkResponse({})
+  upload(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<Item> {
+    return this.itemService.uploadImage(id, file);
+  }
+
+  @Get(':id/image')
+  @Roles('admin', 'manager')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({})
+  @ApiOkResponse({})
+  async getImage(@Param('id') id: string, @Res() res: Response): Promise<any> {
+    const file = await this.itemService.getImage(id);
+    file.stream.pipe(res);
   }
 
   @Delete(':id')

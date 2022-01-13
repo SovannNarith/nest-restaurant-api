@@ -39,6 +39,10 @@ export const ItemSchema = new mongoose.Schema(
       type: String,
       enum: ['OUT_OF_STOCK', 'AVAILABLE'],
     },
+    image: {
+      type: String,
+      default: '091f422d-c2a2-4cd4-a9dc-7594d1fb28e6',
+    },
   },
   {
     versionKey: false,

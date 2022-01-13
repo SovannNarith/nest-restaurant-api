@@ -8,7 +8,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
 import { Error, Model } from 'mongoose';
 import { AdvancedFilter } from 'src/advanced/advanced-filter';
-import { UploadFileDto } from 'src/file/dto/upload-file.dto';
 import { FileService } from 'src/file/file.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';

@@ -8,6 +8,7 @@ import { Request } from 'express';
 import { Error, Model } from 'mongoose';
 import { AdvancedFilter } from 'src/advanced/advanced-filter';
 import { CategoryService } from 'src/category/category.service';
+import { FileService } from 'src/file/file.service';
 import { UserService } from 'src/user/user.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
@@ -19,6 +20,7 @@ export class ItemService {
     @InjectModel('Item') private readonly itemModel: Model<Item>,
     private readonly catService: CategoryService,
     private readonly userService: UserService,
+    private readonly fileService: FileService,
   ) {}
 
   async create(createItemDto: CreateItemDto): Promise<Item> {
@@ -59,6 +61,14 @@ export class ItemService {
     const item = this.findById(id);
     const result = (await item).remove();
     return result;
+  }
+
+  async uploadImage(userId: string, file: Express.Multer.File): Promise<any> {
+    return this.fileService.uploadFile(userId, file, this.itemModel);
+  }
+
+  async getImage(userId: string): Promise<any> {
+    return this.fileService.getFile(userId, this.itemModel);
   }
 
   private async findById(id: string): Promise<Item> {

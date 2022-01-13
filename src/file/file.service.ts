@@ -15,8 +15,6 @@ export class FileService {
     file: Express.Multer.File,
     model?: Model<any>,
   ) {
-
-    
     const s3 = new S3();
     const newLocal = {
       Bucket: process.env.AWS_PUBLIC_BUCKET_NAME,
@@ -30,7 +28,7 @@ export class FileService {
     };
 
     const user = await model.findById(objectId);
-    if (!user) throw new BadRequestException('User Not Found');
+    if (!user) throw new BadRequestException('Resource Not Found');
 
     const returnFile = await s3.upload(newLocal).promise();
     if (!returnFile) throw new BadRequestException('Can not upload File');
@@ -50,7 +48,7 @@ export class FileService {
     await user.updateOne({ image: returnFile.Key });
     user.image = returnFile.Key;
     return {
-      user,
+      data: user,
       file: {
         originalName: returnFileInfo.originalName,
         path: returnFile.Location,
@@ -61,7 +59,7 @@ export class FileService {
 
   async getFile(objectId: string, model: Model<any>): Promise<any> {
     const user = await model.findOne({ _id: objectId });
-    if (!user) throw new BadRequestException('User Not Found');
+    if (!user) throw new BadRequestException('Resource Not Found');
 
     const s3 = new S3();
     if (user) {

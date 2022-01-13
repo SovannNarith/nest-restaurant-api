@@ -8,4 +8,5 @@ export interface Item extends Document {
   categories: string[];
   createdBy: string;
   status: string;
+  image: string;
 }
